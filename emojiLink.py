@@ -1,4 +1,4 @@
-EmojiLink = {
+emoji_dict = {
     '?????' : 'https://i.imgur.com/s3plFKi.gif',
     '......!!!' : 'https://i.imgur.com/4YAimpG.gif',
     '......' : 'https://i.imgur.com/ltOxjd1.gif',
