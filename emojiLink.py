@@ -38,7 +38,7 @@ emoji_dict = {
     '저는기어다닐거예요' : 'https://i.imgur.com/LIh770s.gif',
     '정말고마워요' : 'https://i.imgur.com/jEWv7C8.gif',
     '좋아해요' : 'https://i.imgur.com/ITYZI9V.gif',
-    '지금가요' : 'https://i.imgur.com/hRZcrHr.gif',
+    '지금가요' : 'https://i.imgur.com/u2SgamM.gif',
     '참잘했어요' : 'https://i.imgur.com/OOOT9ya.gif',
     '축하해요' : 'https://i.imgur.com/Qqzr5Ii.gif',
     '칭찬해줘요' : 'https://i.imgur.com/xgYx3Ry.gif',

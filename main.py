@@ -23,7 +23,7 @@ class Bot(commands.Bot):
         if msg.author.bot or msg.author.id == self.user.id:
             return
     
-        if msg.content == "emote":
+        if msg.content == "e" or msg.content == "E":
             await msg.delete()
             emote_view = EmoteButtons()
             emote_msg = await msg.channel.send(view=emote_view, delete_after=15)
