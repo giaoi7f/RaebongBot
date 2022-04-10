@@ -41,7 +41,7 @@ emoji_dict = {
     '지금가요' : 'https://i.imgur.com/hRZcrHr.gif',
     '참잘했어요' : 'https://i.imgur.com/OOOT9ya.gif',
     '축하해요' : 'https://i.imgur.com/Qqzr5Ii.gif',
-    '칭찬해줘요' : 'https://i.imgur.com/OEgXipq.gif',
+    '칭찬해줘요' : 'https://i.imgur.com/xgYx3Ry.gif',
     '토닥여주세요' : 'https://i.imgur.com/dU6kBi1.gif',
     '푸하하' : 'https://i.imgur.com/DhX5iw4.gif',
     '행복해요' : 'https://i.imgur.com/GUQxK1P.gif',
