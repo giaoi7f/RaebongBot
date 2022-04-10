@@ -3,7 +3,8 @@ import discord
 from discord.ext import commands
 import re
 from dotenv import load_dotenv
-from emojiLink import emoji_dict
+from discord.ui import view
+from emojiLink import emoji_dict, emoji_name, emoji_name_1
 
 emoji_regex = re.compile(r'<:\w*:\d*>')
 
@@ -23,13 +24,13 @@ class Bot(commands.Bot):
         if msg.author.bot or msg.author.id == self.user.id:
             return
     
-        if msg.content == "e" or msg.content == "E":
+        if msg.content == 'e' or msg.content == 'E':
             await msg.delete()
             emote_view = EmoteButtons()
-            emote_msg = await msg.channel.send(view=emote_view, delete_after=15)
+            emote_msg = await msg.channel.send(view=emote_view)
             await emote_view.wait()
             if emote_view.value:
-                await emote_msg.delete()
+                    await emote_msg.delete()
             return
     
         if msg.content.startswith('<:'):
@@ -46,30 +47,110 @@ class Bot(commands.Bot):
             return
 
 class EmoteButtons(discord.ui.View):
-    def __init__(self, *, timeout=15):
+    def __init__(self, *, timeout=5):
         super().__init__(timeout=timeout)
         self.value = None
     
-    @discord.ui.button(label="푸하하",style=discord.ButtonStyle.gray)
+    def on_timeout(self):
+        self.value = True
+        self.stop()
+    
+    @discord.ui.button(label=emoji_name_1[0],style=discord.ButtonStyle.gray,row=0)
+    async def button0(self, interaction: discord.Interaction, button: discord.ui.Button):
+        self.value = True
+        await bot.get_channel(interaction.channel_id).send(embed=image_embed(interaction.user, emoji_dict[button.label]))
+        self.stop()
+    @discord.ui.button(label=emoji_name_1[1],style=discord.ButtonStyle.gray,row=0)
     async def button1(self, interaction: discord.Interaction, button: discord.ui.Button):
         self.value = True
-        await bot.get_channel(interaction.channel_id).send(embed=image_embed(interaction.user, emoji_dict["푸하하"]))
+        await bot.get_channel(interaction.channel_id).send(embed=image_embed(interaction.user, emoji_dict[button.label]))
         self.stop()
-    @discord.ui.button(label="두려워요",style=discord.ButtonStyle.gray)
+    @discord.ui.button(label=emoji_name_1[2],style=discord.ButtonStyle.gray,row=0)
     async def button2(self, interaction: discord.Interaction, button: discord.ui.Button):
         self.value = True
-        await bot.get_channel(interaction.channel_id).send(embed=image_embed(interaction.user, emoji_dict["두려워요"]))
+        await bot.get_channel(interaction.channel_id).send(embed=image_embed(interaction.user, emoji_dict[button.label]))
         self.stop()
-    @discord.ui.button(label="애애앵",style=discord.ButtonStyle.gray)
+    @discord.ui.button(label=emoji_name_1[3],style=discord.ButtonStyle.gray,row=0)
     async def button3(self, interaction: discord.Interaction, button: discord.ui.Button):
         self.value = True
-        await bot.get_channel(interaction.channel_id).send(embed=image_embed(interaction.user, emoji_dict["애애앵"]))
+        await bot.get_channel(interaction.channel_id).send(embed=image_embed(interaction.user, emoji_dict[button.label]))
         self.stop()
-    @discord.ui.button(label="안아줘요",style=discord.ButtonStyle.gray)
+    @discord.ui.button(label=emoji_name_1[4],style=discord.ButtonStyle.gray,row=1)
     async def button4(self, interaction: discord.Interaction, button: discord.ui.Button):
         self.value = True
-        await bot.get_channel(interaction.channel_id).send(embed=image_embed(interaction.user, emoji_dict["안아줘요"]))
+        await bot.get_channel(interaction.channel_id).send(embed=image_embed(interaction.user, emoji_dict[button.label]))
         self.stop()
+    @discord.ui.button(label=emoji_name_1[5],style=discord.ButtonStyle.gray,row=1)
+    async def button5(self, interaction: discord.Interaction, button: discord.ui.Button):
+        self.value = True
+        await bot.get_channel(interaction.channel_id).send(embed=image_embed(interaction.user, emoji_dict[button.label]))
+        self.stop()
+    @discord.ui.button(label=emoji_name_1[6],style=discord.ButtonStyle.gray,row=1)
+    async def button6(self, interaction: discord.Interaction, button: discord.ui.Button):
+        self.value = True
+        await bot.get_channel(interaction.channel_id).send(embed=image_embed(interaction.user, emoji_dict[button.label]))
+        self.stop()
+    @discord.ui.button(label=emoji_name_1[7],style=discord.ButtonStyle.gray,row=1)
+    async def button7(self, interaction: discord.Interaction, button: discord.ui.Button):
+        self.value = True
+        await bot.get_channel(interaction.channel_id).send(embed=image_embed(interaction.user, emoji_dict[button.label]))
+        self.stop()
+    @discord.ui.button(label=emoji_name_1[8],style=discord.ButtonStyle.gray,row=2)
+    async def button8(self, interaction: discord.Interaction, button: discord.ui.Button):
+        self.value = True
+        await bot.get_channel(interaction.channel_id).send(embed=image_embed(interaction.user, emoji_dict[button.label]))
+        self.stop()
+    @discord.ui.button(label=emoji_name_1[9],style=discord.ButtonStyle.gray,row=2)
+    async def button9(self, interaction: discord.Interaction, button: discord.ui.Button):
+        self.value = True
+        await bot.get_channel(interaction.channel_id).send(embed=image_embed(interaction.user, emoji_dict[button.label]))
+        self.stop()
+    @discord.ui.button(label=emoji_name_1[10],style=discord.ButtonStyle.gray,row=2)
+    async def button10(self, interaction: discord.Interaction, button: discord.ui.Button):
+        self.value = True
+        await bot.get_channel(interaction.channel_id).send(embed=image_embed(interaction.user, emoji_dict[button.label]))
+        self.stop()
+    @discord.ui.button(label=emoji_name_1[11],style=discord.ButtonStyle.gray,row=2)
+    async def button11(self, interaction: discord.Interaction, button: discord.ui.Button):
+        self.value = True
+        await bot.get_channel(interaction.channel_id).send(embed=image_embed(interaction.user, emoji_dict[button.label]))
+        self.stop()
+    @discord.ui.button(label=1,style=discord.ButtonStyle.blurple,row=3,disabled=True)
+    async def menu1(self, interaction: discord.Interaction, button: discord.ui.Button):
+        children = self.children
+        for i in range(0, 12):
+            children[i].label = emoji_name[0][i]
+        for i in range(12, 16):
+            children[i].disabled = False
+        button.disabled = True
+        await interaction.response.edit_message(view=self)
+    @discord.ui.button(label=2,style=discord.ButtonStyle.blurple,row=3)
+    async def menu2(self, interaction: discord.Interaction, button: discord.ui.Button):
+        children = self.children
+        for i in range(0, 12):
+            children[i].label = emoji_name[1][i]
+        for i in range(12, 16):
+            children[i].disabled = False
+        button.disabled = True
+        await interaction.response.edit_message(view=self)
+    @discord.ui.button(label=3,style=discord.ButtonStyle.blurple,row=3)
+    async def menu3(self, interaction: discord.Interaction, button: discord.ui.Button):
+        children = self.children
+        for i in range(0, 12):
+            children[i].label = emoji_name[2][i]
+        for i in range(12, 16):
+            children[i].disabled = False
+        button.disabled = True
+        await interaction.response.edit_message(view=self)
+    @discord.ui.button(label=4,style=discord.ButtonStyle.blurple,row=3)
+    async def menu4(self, interaction: discord.Interaction, button: discord.ui.Button):
+        children = self.children
+        for i in range(0, 12):
+            children[i].label = emoji_name[3][i]
+        for i in range(12, 16):
+            children[i].disabled = False
+        button.disabled = True
+        await interaction.response.edit_message(view=self)
 
 bot = Bot()
 
