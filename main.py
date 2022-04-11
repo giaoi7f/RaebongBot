@@ -9,8 +9,6 @@ from emojiLink import emoji_dict, emoji_name, emoji_name_1
 
 emoji_regex = re.compile(r'<:\w*:\d*>')
 
-spell_user = []
-
 load_dotenv()
 token = os.environ.get('token')
 
@@ -26,15 +24,6 @@ class Bot(commands.Bot):
     async def on_message(self, msg):
         if msg.author.bot or msg.author.id == self.user.id:
             return
-        
-        if msg.content.startswith('맏'):
-            if msg.content == '맏춤뻡 ON':
-                spell_user.append(msg.author.id)
-                await msg.reply('검사 ON')
-            if msg.content == '맏춤뻡 OFF':
-                if msg.author.id in spell_user:
-                    spell_user.remove(msg.author.id)
-                    await msg.reply('검사 OFF')
 
         if msg.content == 'e' or msg.content == 'E' or msg.content == 'ㄷ':
             await msg.delete()
@@ -165,6 +154,10 @@ class EmoteButtons(discord.ui.View):
         await interaction.response.edit_message(view=self)
 
 bot = Bot()
+
+@bot.slash_command(description="테스트")
+async def check(ctx):
+    await ctx.respond("Respond!", ephemeral=True)
 
 def image_embed(author, url):
     embed = discord.Embed(color=author.color)
