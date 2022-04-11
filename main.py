@@ -155,10 +155,6 @@ class EmoteButtons(discord.ui.View):
 
 bot = Bot()
 
-@bot.slash_command(description="테스트")
-async def check(ctx):
-    await ctx.respond("Respond!", ephemeral=True)
-
 def image_embed(author, url):
     embed = discord.Embed(color=author.color)
     embed.set_author(name=author.display_name, icon_url=author.avatar.url)
