@@ -47,7 +47,7 @@ class Bot(commands.Bot):
             return
 
 class EmoteButtons(discord.ui.View):
-    def __init__(self, *, timeout=5):
+    def __init__(self, *, timeout=10):
         super().__init__(timeout=timeout)
         self.value = None
     
@@ -70,7 +70,7 @@ class EmoteButtons(discord.ui.View):
         self.value = True
         await bot.get_channel(interaction.channel_id).send(embed=image_embed(interaction.user, emoji_dict[button.label]))
         self.stop()
-    @discord.ui.button(label=emoji_name_1[3],style=discord.ButtonStyle.gray,row=0)
+    @discord.ui.button(label=emoji_name_1[3],style=discord.ButtonStyle.gray,row=1)
     async def button3(self, interaction: discord.Interaction, button: discord.ui.Button):
         self.value = True
         await bot.get_channel(interaction.channel_id).send(embed=image_embed(interaction.user, emoji_dict[button.label]))
@@ -85,12 +85,12 @@ class EmoteButtons(discord.ui.View):
         self.value = True
         await bot.get_channel(interaction.channel_id).send(embed=image_embed(interaction.user, emoji_dict[button.label]))
         self.stop()
-    @discord.ui.button(label=emoji_name_1[6],style=discord.ButtonStyle.gray,row=1)
+    @discord.ui.button(label=emoji_name_1[6],style=discord.ButtonStyle.gray,row=2)
     async def button6(self, interaction: discord.Interaction, button: discord.ui.Button):
         self.value = True
         await bot.get_channel(interaction.channel_id).send(embed=image_embed(interaction.user, emoji_dict[button.label]))
         self.stop()
-    @discord.ui.button(label=emoji_name_1[7],style=discord.ButtonStyle.gray,row=1)
+    @discord.ui.button(label=emoji_name_1[7],style=discord.ButtonStyle.gray,row=2)
     async def button7(self, interaction: discord.Interaction, button: discord.ui.Button):
         self.value = True
         await bot.get_channel(interaction.channel_id).send(embed=image_embed(interaction.user, emoji_dict[button.label]))
@@ -100,22 +100,22 @@ class EmoteButtons(discord.ui.View):
         self.value = True
         await bot.get_channel(interaction.channel_id).send(embed=image_embed(interaction.user, emoji_dict[button.label]))
         self.stop()
-    @discord.ui.button(label=emoji_name_1[9],style=discord.ButtonStyle.gray,row=2)
+    @discord.ui.button(label=emoji_name_1[9],style=discord.ButtonStyle.gray,row=3)
     async def button9(self, interaction: discord.Interaction, button: discord.ui.Button):
         self.value = True
         await bot.get_channel(interaction.channel_id).send(embed=image_embed(interaction.user, emoji_dict[button.label]))
         self.stop()
-    @discord.ui.button(label=emoji_name_1[10],style=discord.ButtonStyle.gray,row=2)
+    @discord.ui.button(label=emoji_name_1[10],style=discord.ButtonStyle.gray,row=3)
     async def button10(self, interaction: discord.Interaction, button: discord.ui.Button):
         self.value = True
         await bot.get_channel(interaction.channel_id).send(embed=image_embed(interaction.user, emoji_dict[button.label]))
         self.stop()
-    @discord.ui.button(label=emoji_name_1[11],style=discord.ButtonStyle.gray,row=2)
+    @discord.ui.button(label=emoji_name_1[11],style=discord.ButtonStyle.gray,row=3)
     async def button11(self, interaction: discord.Interaction, button: discord.ui.Button):
         self.value = True
         await bot.get_channel(interaction.channel_id).send(embed=image_embed(interaction.user, emoji_dict[button.label]))
         self.stop()
-    @discord.ui.button(label=1,style=discord.ButtonStyle.blurple,row=3,disabled=True)
+    @discord.ui.button(label=1,style=discord.ButtonStyle.blurple,row=4,disabled=True)
     async def menu1(self, interaction: discord.Interaction, button: discord.ui.Button):
         children = self.children
         for i in range(0, 12):
@@ -124,7 +124,7 @@ class EmoteButtons(discord.ui.View):
             children[i].disabled = False
         button.disabled = True
         await interaction.response.edit_message(view=self)
-    @discord.ui.button(label=2,style=discord.ButtonStyle.blurple,row=3)
+    @discord.ui.button(label=2,style=discord.ButtonStyle.blurple,row=4)
     async def menu2(self, interaction: discord.Interaction, button: discord.ui.Button):
         children = self.children
         for i in range(0, 12):
@@ -133,7 +133,7 @@ class EmoteButtons(discord.ui.View):
             children[i].disabled = False
         button.disabled = True
         await interaction.response.edit_message(view=self)
-    @discord.ui.button(label=3,style=discord.ButtonStyle.blurple,row=3)
+    @discord.ui.button(label=3,style=discord.ButtonStyle.blurple,row=4)
     async def menu3(self, interaction: discord.Interaction, button: discord.ui.Button):
         children = self.children
         for i in range(0, 12):
@@ -142,7 +142,7 @@ class EmoteButtons(discord.ui.View):
             children[i].disabled = False
         button.disabled = True
         await interaction.response.edit_message(view=self)
-    @discord.ui.button(label=4,style=discord.ButtonStyle.blurple,row=3)
+    @discord.ui.button(label=4,style=discord.ButtonStyle.blurple,row=4)
     async def menu4(self, interaction: discord.Interaction, button: discord.ui.Button):
         children = self.children
         for i in range(0, 12):
