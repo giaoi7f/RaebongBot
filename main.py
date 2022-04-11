@@ -2,6 +2,7 @@ import os
 import discord
 from discord.ext import commands
 import re
+import hanspell
 from dotenv import load_dotenv
 from discord.ui import view
 from emojiLink import emoji_dict, emoji_name, emoji_name_1
@@ -24,7 +25,7 @@ class Bot(commands.Bot):
         if msg.author.bot or msg.author.id == self.user.id:
             return
     
-        if msg.content == 'e' or msg.content == 'E':
+        if msg.content == 'e' or msg.content == 'E' or msg.content == 'ㄷ':
             await msg.delete()
             emote_view = EmoteButtons()
             emote_msg = await msg.channel.send(view=emote_view)
