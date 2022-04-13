@@ -14,12 +14,19 @@ token = os.environ.get('token')
 
 class Bot(commands.Bot):
     def __init__(self):
+        self.command_prefix='!'
         intents = discord.Intents.all()
         super().__init__(command_prefix=commands.when_mentioned_or('!'), intents=intents)
 
     async def on_ready(self):
-        print(f'{self.user}로 로그인함 (ID: {self.user.id})')
+        await logging(f'{self.user}로 로그인함 (ID: {self.user.id})')
         await self.change_presence(activity=discord.Game(name="광질"))
+
+        self.music = []
+        async for message in self.get_channel(962604153891323934).history():
+            if message.content.startswith('> '): #and message.author.id == self.application_id
+                self.music.append(message.content)
+        print("MusicArr Added :\n" + "\n".join(self.music))
 
     async def on_message(self, msg):
         if msg.author.bot or msg.author.id == self.user.id:
@@ -154,6 +161,15 @@ class EmoteButtons(discord.ui.View):
         await interaction.response.edit_message(view=self)
 
 bot = Bot()
+
+yt_url_pattern = r'(?:https?:\/\/)?(?:[0-9A-Z-]+\.)?(?:youtube|youtu|youtube-nocookie)\.(?:com|be)\/(?:watch\?v=|watch\?.+&v=|embed\/|v\/|.+\?v=)?([^&=\n%\?]{11})'
+
+@bot.command(description='리스트에 추가합니다.')
+async def add(ctx, name: str, link: str):
+    #link example: https://www.youtube.com/watch?v=dHXC_ahjtEE
+    if link.startswith('http'):
+        link = re.findall(yt_url_pattern, link, re.MULTILINE | re.IGNORECASE)[0]
+    await logging(f'> {len(bot.music)}. "{name}": {link}')
 
 def image_embed(author, url):
     embed = discord.Embed(color=author.color)
