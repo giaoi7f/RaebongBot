@@ -43,7 +43,7 @@ emoji_dict = {
     '축하해요' : 'https://i.imgur.com/fyBZkUu.gif',
     '칭찬해줘요' : 'https://i.imgur.com/BQKge8L.gif',
     '토닥여주세요' : 'https://i.imgur.com/womGink.gif',
-    '푸하하' : 'https://i.imgur.com/qR8FTLk.gif',
+    '푸하하' : 'https://i.imgur.com/qem4VHX.gif',
     '행복해요' : 'https://i.imgur.com/B5nqCoS.gif',
     '화났어요' : 'https://i.imgur.com/waGt98F.gif',
     '힘내요' : 'https://i.imgur.com/aRkIivp.gif'
