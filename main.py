@@ -1,16 +1,19 @@
 import os
+import html
 import discord
 from discord.ext import commands
 import re
-import hanspell
+from hanspell import spell_checker
 from dotenv import load_dotenv
 from discord.ui import view
+from discord import utils
 from emojiLink import emoji_dict, emoji_name, emoji_name_1
 
 emoji_regex = re.compile(r'<:\w*:\d*>')
 
 load_dotenv()
 token = os.environ.get('token')
+student = []
 
 class Bot(commands.Bot):
     def __init__(self):
@@ -40,7 +43,7 @@ class Bot(commands.Bot):
             if emote_view.value:
                     await emote_msg.delete()
             return
-    
+
         if msg.content.startswith('<:'):
             emoji = emoji_regex.findall(msg.content)[0]
             if emoji == msg.content:
@@ -48,11 +51,32 @@ class Bot(commands.Bot):
                 await msg.channel.send(embed=image_embed(
                         msg.author, f"https://cdn.discordapp.com/emojis/{msg.content.split(':')[2][:-1]}.png"))
                 return
-        
+
         if msg.content in emoji_dict:
             await msg.delete()
             await msg.channel.send(embed=image_embed(msg.author, emoji_dict[msg.content]))
             return
+
+        global student
+        if msg.content == '!켜기':
+            if msg.author in student:
+                await msg.reply("리스트에 이미 있습니다", delete_after=5)
+            else:
+                student.append(msg.author)
+                await msg.reply("앞으로 맞춤법을 검사합니다!", delete_after=5)
+        if msg.content == '!끄기':
+            if msg.author in student:
+                student.remove(msg.author)
+                await msg.reply("이제 맞춤법을 검사하지 않습니다", delete_after=5)
+            else:
+                await msg.reply("리스트에 없습니다", delete_after=5)
+
+        if msg.author in student:
+            checked_spell = spell_check(utils.remove_markdown(msg.content))
+            #430 character for minute
+            if checked_spell:
+                reading_time = len(checked_spell) / 8
+                await msg.reply(checked_spell, delete_after=reading_time)
 
 class EmoteButtons(discord.ui.View):
     def __init__(self, *, timeout=10):
@@ -162,15 +186,6 @@ class EmoteButtons(discord.ui.View):
 
 bot = Bot()
 
-yt_url_pattern = r'(?:https?:\/\/)?(?:[0-9A-Z-]+\.)?(?:youtube|youtu|youtube-nocookie)\.(?:com|be)\/(?:watch\?v=|watch\?.+&v=|embed\/|v\/|.+\?v=)?([^&=\n%\?]{11})'
-
-@bot.command(description='리스트에 추가합니다.')
-async def add(ctx, name: str, link: str):
-    #link example: https://www.youtube.com/watch?v=dHXC_ahjtEE
-    if link.startswith('http'):
-        link = re.findall(yt_url_pattern, link, re.MULTILINE | re.IGNORECASE)[0]
-    await logging(f'> {len(bot.music)}. "{name}": {link}')
-
 def image_embed(author, url):
     embed = discord.Embed(color=author.color)
     embed.set_author(name=author.display_name, icon_url=author.avatar.url)
@@ -180,5 +195,43 @@ def image_embed(author, url):
 async def logging(detail):
     print(f"Logging: {detail}")
     await bot.get_channel(962604153891323934).send(str(detail))
+
+def spell_check(str):
+    str = str.replace('\n', "<br>")
+    print(str)
+    result = spell_checker.check(str)
+    if result.errors == 0:
+        return False
+        
+    rt_str = []
+    for sentence in str.split(): #sentence = 비오듯쏟아지던습하고
+        check = spell_checker.check(sentence).words
+        words = []
+        for word, value in check.items(): #word = 비오듯, value = 1
+
+            if word == "<span":
+                continue
+            if word[0:20] == "class='violet_text'>":
+                words.append(f"~~{word[20:]}~~")
+                continue
+
+            #통과, 맞춤법, 띄어쓰기, 표준어, 통계적교정
+            if value == 0 or value == 2:
+                words.append(f"{word}")
+            elif value == 1:
+                words.append(f"**{word}**")
+            else:
+                words.append(f"⯑")
+                
+        words = " ".join(words)
+        if len(check) != 1:
+            rt_str.append(f"__{words}__")
+        else:
+            rt_str.append(f"{words}")
+    
+    print(rt_str)
+    rt_str = " ".join(rt_str)
+    rt_str = html.unescape(rt_str).replace("<br>", "\n")
+    return re.sub(r'<.*>', "", rt_str)
 
 bot.run(token)
