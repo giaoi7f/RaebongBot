@@ -3,21 +3,24 @@ import html
 import discord
 from discord.ext import commands
 import re
+import random
 from hanspell import spell_checker
 from dotenv import load_dotenv
 from discord.ui import view
 from discord import utils
 from emojiLink import emoji_dict, emoji_name, emoji_name_1
+from name import name_list
 
 emoji_regex = re.compile(r'<:\w*:\d*>')
 
 load_dotenv()
 token = os.environ.get('token')
-student = []
 
 class Bot(commands.Bot):
     def __init__(self):
+        self.student=[]
         self.command_prefix='!'
+        self.fight_embed=False
         intents = discord.Intents.all()
         super().__init__(command_prefix=commands.when_mentioned_or('!'), intents=intents)
 
@@ -44,6 +47,7 @@ class Bot(commands.Bot):
                     await emote_msg.delete()
             return
 
+        #enlarge emoticon with image_embed
         if msg.content.startswith('<:'):
             emoji = emoji_regex.findall(msg.content)[0]
             if emoji == msg.content:
@@ -57,25 +61,46 @@ class Bot(commands.Bot):
             await msg.channel.send(embed=image_embed(msg.author, emoji_dict[msg.content]))
             return
 
-        global student
+        #Team
+        if msg.content == '!내전':
+            channel = msg.author.voice.channel
+            if channel:
+                if self.fight_embed:
+                    await self.fight_embed.delete()
+                member = channel.members
+                player = []
+                for user in member:
+                    if user.id in name_list:
+                        player.append(name_list[user.id])
+                    else:
+                        player.append(user.name)
+
+                embed = discord.Embed(title=f"내전 ({len(player)}명)",description=", ".join(sorted(player)),color=0xff0000)
+                random.shuffle(player)
+                embed.add_field(name="Team1", value=" / ".join(sorted(player[:int(len(player) / 2)])), inline=False)
+                embed.add_field(name="Team2", value=" / ".join(sorted(player[int(len(player) / 2):])), inline=True)
+                self.fight_embed = await msg.reply(embed=embed)
+            else:
+                await msg.reply('보이스채널에 있어야합니다')
+
+        #Spell check comm
         if msg.content == '!켜기':
-            if msg.author in student:
+            if msg.author in self.student:
                 await msg.reply("리스트에 이미 있습니다", delete_after=5)
             else:
-                student.append(msg.author)
+                self.student.append(msg.author)
                 await msg.reply("앞으로 맞춤법을 검사합니다!", delete_after=5)
         if msg.content == '!끄기':
-            if msg.author in student:
-                student.remove(msg.author)
+            if msg.author in self.student:
+                self.student.remove(msg.author)
                 await msg.reply("이제 맞춤법을 검사하지 않습니다", delete_after=5)
             else:
                 await msg.reply("리스트에 없습니다", delete_after=5)
 
-        if msg.author in student:
+        if msg.author in self.student:
             checked_spell = spell_check(utils.remove_markdown(msg.content))
-            #430 character for minute
             if checked_spell:
-                reading_time = len(checked_spell) / 8
+                reading_time = 2 + len(checked_spell) / 14
                 await msg.reply(checked_spell, delete_after=reading_time)
 
 class EmoteButtons(discord.ui.View):
@@ -186,16 +211,19 @@ class EmoteButtons(discord.ui.View):
 
 bot = Bot()
 
+#make embed includes image
 def image_embed(author, url):
     embed = discord.Embed(color=author.color)
     embed.set_author(name=author.display_name, icon_url=author.avatar.url)
     embed.set_image(url=url)
     return embed
 
+#log detail terminal and specific text channel
 async def logging(detail):
     print(f"Logging: {detail}")
     await bot.get_channel(962604153891323934).send(str(detail))
 
+#string to spell-checked string with discord markdown
 def spell_check(str):
     str = str.replace('\n', "<br>")
     print(str)
