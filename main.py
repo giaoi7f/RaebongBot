@@ -28,11 +28,11 @@ class Bot(commands.Bot):
         await logging(f'{self.user}로 로그인함 (ID: {self.user.id})')
         await self.change_presence(activity=discord.Game(name="광질"))
 
-        self.music = []
-        async for message in self.get_channel(962604153891323934).history():
-            if message.content.startswith('> '): #and message.author.id == self.application_id
-                self.music.append(message.content)
-        print("MusicArr Added :\n" + "\n".join(self.music))
+        # self.music = []
+        # async for message in self.get_channel(962604153891323934).history():
+        #     if message.content.startswith('> '): #and message.author.id == self.application_id
+        #         self.music.append(message.content)
+        # print("MusicArr Added :\n" + "\n".join(self.music))
 
     async def on_message(self, msg):
         if msg.author.bot or msg.author.id == self.user.id:
