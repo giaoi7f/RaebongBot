@@ -18,7 +18,6 @@ token = os.environ.get('token')
 
 class Bot(commands.Bot):
     def __init__(self):
-        self.student=[]
         self.command_prefix='!'
         self.fight_embed=False
         intents = discord.Intents.all()
@@ -84,24 +83,10 @@ class Bot(commands.Bot):
                 await msg.reply('보이스채널에 있어야합니다')
 
         #Spell check comm
-        if msg.content == '!켜기':
-            if msg.author in self.student:
-                await msg.reply("리스트에 이미 있습니다", delete_after=5)
-            else:
-                self.student.append(msg.author)
-                await msg.reply("앞으로 맞춤법을 검사합니다!", delete_after=5)
-        if msg.content == '!끄기':
-            if msg.author in self.student:
-                self.student.remove(msg.author)
-                await msg.reply("이제 맞춤법을 검사하지 않습니다", delete_after=5)
-            else:
-                await msg.reply("리스트에 없습니다", delete_after=5)
-
-        if msg.author in self.student:
-            checked_spell = spell_check(utils.remove_markdown(msg.content))
+        if msg.content.startswith("!검사 "):
+            checked_spell = spell_check(utils.remove_markdown(msg.content[4:]))
             if checked_spell:
-                reading_time = 2 + len(checked_spell) / 14
-                await msg.reply(checked_spell, delete_after=reading_time)
+                await msg.reply(checked_spell)
 
 class EmoteButtons(discord.ui.View):
     def __init__(self, *, timeout=10):
