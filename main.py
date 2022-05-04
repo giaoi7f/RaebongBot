@@ -10,6 +10,7 @@ from discord.ui import view
 from discord import utils
 from emojiLink import emoji_dict, emoji_name, emoji_name_1
 from name import name_list
+from question import question
 
 emoji_regex = re.compile(r'<:\w*:\d*>')
 
@@ -87,6 +88,18 @@ class Bot(commands.Bot):
             checked_spell = spell_check(utils.remove_markdown(msg.content[4:]))
             if checked_spell:
                 await msg.reply(checked_spell)
+
+        #Question
+        if msg.content.startswith('!질문 '):
+            if re.compile('\d ').match(msg.content[4:6]):
+                await msg.reply(f"***> {msg.author.name}***{question(msg.content[6:], msg.content[4])}")
+            elif re.compile('\d\d ').match(msg.content[4:7]):
+                if int(msg.content[4:6]) > 69:
+                    await msg.reply('!질문 (1~69) (~하는 것)')
+                else:
+                    await msg.reply(f"***> {msg.author.name}***{question(msg.content[7:], msg.content[4:6])}")
+            else:
+                await msg.reply('!질문 (1~69) (~하는 것)')
 
 class EmoteButtons(discord.ui.View):
     def __init__(self, *, timeout=10):
@@ -234,7 +247,7 @@ def spell_check(str):
             elif value == 1:
                 words.append(f"**{word}**")
             else:
-                words.append(f"⯑")
+                words.append(f"[?]")
                 
         words = " ".join(words)
         if len(check) != 1:
