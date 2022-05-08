@@ -6,7 +6,6 @@ import re
 import random
 from hanspell import spell_checker
 from dotenv import load_dotenv
-from discord.ui import view
 from discord import utils
 from emojiLink import emoji_dict, emoji_name, emoji_name_1
 from name import name_list
@@ -59,6 +58,12 @@ class Bot(commands.Bot):
         if msg.content in emoji_dict:
             await msg.delete()
             await msg.channel.send(embed=image_embed(msg.author, emoji_dict[msg.content]))
+            return
+
+        #Emoji Testing
+        if msg.content == '!emojitest':
+            for emoji in emoji_dict.keys():
+                await msg.channel.send(embed=image_embed(msg.author, emoji_dict[emoji]))
             return
 
         #Team

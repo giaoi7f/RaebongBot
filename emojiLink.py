@@ -1,7 +1,7 @@
 emoji_dict = {
-    '??' : 'https://i.imgur.com/Wdf1dfE.gif',
+    '??' : 'https://i.imgur.com/8PMqsKT.gif',
     '!!' : 'https://i.imgur.com/16XMEvr.gif',
-    '...' : 'https://i.imgur.com/LoKmVaf.gif',
+    '...' : 'https://i.imgur.com/AiHlCm3.gif',
     '그래요' : 'https://i.imgur.com/ghvguCP.gif',
     '그렇군요' : 'https://i.imgur.com/cAj6pWj.gif',
     '나빴어' : 'https://i.imgur.com/uaOaVr4.gif',
@@ -20,7 +20,7 @@ emoji_dict = {
     '배고파요' : 'https://i.imgur.com/S3gVyOw.gif',
     '뱃속에고기가있어요' : 'https://i.imgur.com/FvDP3MN.gif',
     '변태' : 'https://i.imgur.com/eEvh0WO.gif',
-    '부끄러워요' : 'https://i.imgur.com/ORAexti.gif',
+    '부끄러워요' : 'https://i.imgur.com/DUeMLLR.gif',
     '사랑해요' : 'https://i.imgur.com/XVU2zgH.gif',
     '숨을래요' : 'https://i.imgur.com/cR5N9gr.gif',
     '싫은데요' : 'https://i.imgur.com/yC7iJ1E.gif',
@@ -43,8 +43,8 @@ emoji_dict = {
     '축하해요' : 'https://i.imgur.com/fyBZkUu.gif',
     '칭찬해줘요' : 'https://i.imgur.com/BQKge8L.gif',
     '토닥여주세요' : 'https://i.imgur.com/J239tjd.gif',
-    '푸하하' : 'https://i.imgur.com/qem4VHX.gif',
-    '행복해요' : 'https://i.imgur.com/B5nqCoS.gif',
+    '푸하하' : 'https://i.imgur.com/5aiA92w.gif',
+    '행복해요' : 'https://i.imgur.com/y7B3YSP.gif',
     '화났어요' : 'https://i.imgur.com/waGt98F.gif',
     '힘내요' : 'https://i.imgur.com/aRkIivp.gif'
 }
