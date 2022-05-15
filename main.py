@@ -136,8 +136,8 @@ class EmoteButtons(discord.ui.View):
 
 class Dropdown1(discord.ui.Select):
     def __init__(self):
-        self.row = 1
-        super().__init__(placeholder='보낼 이모티콘을 골라주세요', options=options1)
+        self.row = 0
+        super().__init__(placeholder='기분을말해요', options=options1)
     
     async def callback(self, interaction: discord.Interaction):
         await bot.get_channel(interaction.channel_id).send(embed=image_embed(interaction.user, emoji_dict[self.values[0]]))
@@ -145,15 +145,15 @@ class Dropdown1(discord.ui.Select):
 class Dropdown2(discord.ui.Select):
     def __init__(self):
         self.row = 1
-        super().__init__(placeholder='보낼 이모티콘을 골라주세요', options=options2)
+        super().__init__(placeholder='대답해요', options=options2)
     
     async def callback(self, interaction: discord.Interaction):
         await bot.get_channel(interaction.channel_id).send(embed=image_embed(interaction.user, emoji_dict[self.values[0]]))
 
 class Dropdown3(discord.ui.Select):
     def __init__(self):
-        self.row = 1
-        super().__init__(placeholder='보낼 이모티콘을 골라주세요', options=options3)
+        self.row = 2
+        super().__init__(placeholder='생각을말해요', options=options3)
     
     async def callback(self, interaction: discord.Interaction):
         await bot.get_channel(interaction.channel_id).send(embed=image_embed(interaction.user, emoji_dict[self.values[0]]))
@@ -162,36 +162,18 @@ class DropdownView(discord.ui.View):
     def __init__(self):
         super().__init__()
         self.add_item(Dropdown1())
-
-    @discord.ui.button(label='기분을말해요',style=discord.ButtonStyle.blurple,row=0,disabled=True)
-    async def button1(self, interaction: discord.Interaction, button: discord.ui.Button):
-        self.children[1].disabled = False
-        self.children[2].disabled = False
-        button.disabled = True
-
-        self.remove_item(self.children[3])
-        self.add_item(Dropdown1())
-        await interaction.response.edit_message(view=self)
-
-    @discord.ui.button(label='대답해요',style=discord.ButtonStyle.blurple,row=0)
-    async def button2(self, interaction: discord.Interaction, button: discord.ui.Button):
-        self.children[0].disabled = False
-        self.children[2].disabled = False
-        button.disabled = True
-
-        self.remove_item(self.children[3])
         self.add_item(Dropdown2())
-        await interaction.response.edit_message(view=self)
-
-    @discord.ui.button(label='하고싶은말이있어요',style=discord.ButtonStyle.blurple,row=0)
-    async def button3(self, interaction: discord.Interaction, button: discord.ui.Button):
-        self.children[0].disabled = False
-        self.children[1].disabled = False
-        button.disabled = True
-
-        self.remove_item(self.children[3])
         self.add_item(Dropdown3())
-        await interaction.response.edit_message(view=self)
+
+    # @discord.ui.button(label='기분을말해요',style=discord.ButtonStyle.blurple,row=0,disabled=True)
+    # async def button1(self, interaction: discord.Interaction, button: discord.ui.Button):
+    #     self.children[1].disabled = False
+    #     self.children[2].disabled = False
+    #     button.disabled = True
+
+    #     self.remove_item(self.children[3])
+    #     self.add_item(Dropdown1())
+    #     await interaction.response.edit_message(view=self)
 
 bot = Bot()
 
