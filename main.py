@@ -7,7 +7,7 @@ import random
 from hanspell import spell_checker
 from dotenv import load_dotenv
 from discord import utils
-from emojiLink import emoji_dict, emoji_name, emoji_name_1
+from emojiLink import emoji_dict, emoji_names_mood, emoji_names_answer, emoji_names_say
 from name import name_list
 from question import question
 
@@ -26,7 +26,15 @@ class Bot(commands.Bot):
     async def on_ready(self):
         await logging(f'{self.user}로 로그인함 (ID: {self.user.id})')
         await self.change_presence(activity=discord.Game(name="광질"))
-
+        
+        global options1, options2, options3
+        options1, options2, options3 = [], [], []
+        for name in emoji_names_mood:
+            options1.append(discord.SelectOption(label=name,value=name))
+        for name in emoji_names_answer:
+            options2.append(discord.SelectOption(label=name,value=name))
+        for name in emoji_names_say:
+            options3.append(discord.SelectOption(label=name,value=name))
         # self.music = []
         # async for message in self.get_channel(962604153891323934).history():
         #     if message.content.startswith('> '): #and message.author.id == self.application_id
@@ -37,13 +45,14 @@ class Bot(commands.Bot):
         if msg.author.bot or msg.author.id == self.user.id:
             return
 
+        #'E' command
         if msg.content == 'e' or msg.content == 'E' or msg.content == 'ㄷ':
             await msg.delete()
-            emote_view = EmoteButtons()
-            emote_msg = await msg.channel.send(view=emote_view)
-            await emote_view.wait()
-            if emote_view.value:
-                    await emote_msg.delete()
+            view = EmoteButtons()
+            emote_msg = await msg.channel.send(view=view, delete_after=5)
+            await view.wait()
+            if view.value:
+                await emote_msg.delete()
             return
 
         #enlarge emoticon with image_embed
@@ -55,6 +64,7 @@ class Bot(commands.Bot):
                         msg.author, f"https://cdn.discordapp.com/emojis/{msg.content.split(':')[2][:-1]}.png"))
                 return
 
+        #Direct Emoji command
         if msg.content in emoji_dict:
             await msg.delete()
             await msg.channel.send(embed=image_embed(msg.author, emoji_dict[msg.content]))
@@ -88,7 +98,13 @@ class Bot(commands.Bot):
             else:
                 await msg.reply('보이스채널에 있어야합니다')
 
-        #Spell check comm
+        #Spell check command
+        if msg.content.startswith("!검사") and msg.reference is not None:
+            target_msg = await msg.channel.fetch_message(msg.reference.message_id)
+            checked_spell = spell_check(utils.remove_markdown(target_msg.content))
+            if checked_spell:
+                await target_msg.reply(checked_spell)
+
         if msg.content.startswith("!검사 "):
             checked_spell = spell_check(utils.remove_markdown(msg.content[4:]))
             if checked_spell:
@@ -108,109 +124,73 @@ class Bot(commands.Bot):
                 await msg.channel.send('!질문 (1~69) (~하는 것)')
 
 class EmoteButtons(discord.ui.View):
-    def __init__(self, *, timeout=10):
-        super().__init__(timeout=timeout)
+    def __init__(self):
+        super().__init__()
         self.value = None
-    
-    def on_timeout(self):
-        self.value = True
-        self.stop()
-    
-    @discord.ui.button(label=emoji_name_1[0],style=discord.ButtonStyle.gray,row=0)
+
+    @discord.ui.button(label='바들바들동물콘',style=discord.ButtonStyle.green,row=0)
     async def button0(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.send_message(view=DropdownView(), ephemeral=True)
         self.value = True
-        await bot.get_channel(interaction.channel_id).send(embed=image_embed(interaction.user, emoji_dict[button.label]))
         self.stop()
-    @discord.ui.button(label=emoji_name_1[1],style=discord.ButtonStyle.gray,row=0)
+
+class Dropdown1(discord.ui.Select):
+    def __init__(self):
+        self.row = 1
+        super().__init__(placeholder='보낼 이모티콘을 골라주세요', options=options1)
+    
+    async def callback(self, interaction: discord.Interaction):
+        await bot.get_channel(interaction.channel_id).send(embed=image_embed(interaction.user, emoji_dict[self.values[0]]))
+
+class Dropdown2(discord.ui.Select):
+    def __init__(self):
+        self.row = 1
+        super().__init__(placeholder='보낼 이모티콘을 골라주세요', options=options2)
+    
+    async def callback(self, interaction: discord.Interaction):
+        await bot.get_channel(interaction.channel_id).send(embed=image_embed(interaction.user, emoji_dict[self.values[0]]))
+
+class Dropdown3(discord.ui.Select):
+    def __init__(self):
+        self.row = 1
+        super().__init__(placeholder='보낼 이모티콘을 골라주세요', options=options3)
+    
+    async def callback(self, interaction: discord.Interaction):
+        await bot.get_channel(interaction.channel_id).send(embed=image_embed(interaction.user, emoji_dict[self.values[0]]))
+
+class DropdownView(discord.ui.View):
+    def __init__(self):
+        super().__init__()
+        self.add_item(Dropdown1())
+
+    @discord.ui.button(label='기분을말해요',style=discord.ButtonStyle.blurple,row=0,disabled=True)
     async def button1(self, interaction: discord.Interaction, button: discord.ui.Button):
-        self.value = True
-        await bot.get_channel(interaction.channel_id).send(embed=image_embed(interaction.user, emoji_dict[button.label]))
-        self.stop()
-    @discord.ui.button(label=emoji_name_1[2],style=discord.ButtonStyle.gray,row=0)
+        self.children[1].disabled = False
+        self.children[2].disabled = False
+        button.disabled = True
+
+        self.remove_item(self.children[3])
+        self.add_item(Dropdown1())
+        await interaction.response.edit_message(view=self)
+
+    @discord.ui.button(label='대답해요',style=discord.ButtonStyle.blurple,row=0)
     async def button2(self, interaction: discord.Interaction, button: discord.ui.Button):
-        self.value = True
-        await bot.get_channel(interaction.channel_id).send(embed=image_embed(interaction.user, emoji_dict[button.label]))
-        self.stop()
-    @discord.ui.button(label=emoji_name_1[3],style=discord.ButtonStyle.gray,row=1)
+        self.children[0].disabled = False
+        self.children[2].disabled = False
+        button.disabled = True
+
+        self.remove_item(self.children[3])
+        self.add_item(Dropdown2())
+        await interaction.response.edit_message(view=self)
+
+    @discord.ui.button(label='하고싶은말이있어요',style=discord.ButtonStyle.blurple,row=0)
     async def button3(self, interaction: discord.Interaction, button: discord.ui.Button):
-        self.value = True
-        await bot.get_channel(interaction.channel_id).send(embed=image_embed(interaction.user, emoji_dict[button.label]))
-        self.stop()
-    @discord.ui.button(label=emoji_name_1[4],style=discord.ButtonStyle.gray,row=1)
-    async def button4(self, interaction: discord.Interaction, button: discord.ui.Button):
-        self.value = True
-        await bot.get_channel(interaction.channel_id).send(embed=image_embed(interaction.user, emoji_dict[button.label]))
-        self.stop()
-    @discord.ui.button(label=emoji_name_1[5],style=discord.ButtonStyle.gray,row=1)
-    async def button5(self, interaction: discord.Interaction, button: discord.ui.Button):
-        self.value = True
-        await bot.get_channel(interaction.channel_id).send(embed=image_embed(interaction.user, emoji_dict[button.label]))
-        self.stop()
-    @discord.ui.button(label=emoji_name_1[6],style=discord.ButtonStyle.gray,row=2)
-    async def button6(self, interaction: discord.Interaction, button: discord.ui.Button):
-        self.value = True
-        await bot.get_channel(interaction.channel_id).send(embed=image_embed(interaction.user, emoji_dict[button.label]))
-        self.stop()
-    @discord.ui.button(label=emoji_name_1[7],style=discord.ButtonStyle.gray,row=2)
-    async def button7(self, interaction: discord.Interaction, button: discord.ui.Button):
-        self.value = True
-        await bot.get_channel(interaction.channel_id).send(embed=image_embed(interaction.user, emoji_dict[button.label]))
-        self.stop()
-    @discord.ui.button(label=emoji_name_1[8],style=discord.ButtonStyle.gray,row=2)
-    async def button8(self, interaction: discord.Interaction, button: discord.ui.Button):
-        self.value = True
-        await bot.get_channel(interaction.channel_id).send(embed=image_embed(interaction.user, emoji_dict[button.label]))
-        self.stop()
-    @discord.ui.button(label=emoji_name_1[9],style=discord.ButtonStyle.gray,row=3)
-    async def button9(self, interaction: discord.Interaction, button: discord.ui.Button):
-        self.value = True
-        await bot.get_channel(interaction.channel_id).send(embed=image_embed(interaction.user, emoji_dict[button.label]))
-        self.stop()
-    @discord.ui.button(label=emoji_name_1[10],style=discord.ButtonStyle.gray,row=3)
-    async def button10(self, interaction: discord.Interaction, button: discord.ui.Button):
-        self.value = True
-        await bot.get_channel(interaction.channel_id).send(embed=image_embed(interaction.user, emoji_dict[button.label]))
-        self.stop()
-    @discord.ui.button(label=emoji_name_1[11],style=discord.ButtonStyle.gray,row=3)
-    async def button11(self, interaction: discord.Interaction, button: discord.ui.Button):
-        self.value = True
-        await bot.get_channel(interaction.channel_id).send(embed=image_embed(interaction.user, emoji_dict[button.label]))
-        self.stop()
-    @discord.ui.button(label=1,style=discord.ButtonStyle.blurple,row=4,disabled=True)
-    async def menu1(self, interaction: discord.Interaction, button: discord.ui.Button):
-        children = self.children
-        for i in range(0, 12):
-            children[i].label = emoji_name[0][i]
-        for i in range(12, 16):
-            children[i].disabled = False
+        self.children[0].disabled = False
+        self.children[1].disabled = False
         button.disabled = True
-        await interaction.response.edit_message(view=self)
-    @discord.ui.button(label=2,style=discord.ButtonStyle.blurple,row=4)
-    async def menu2(self, interaction: discord.Interaction, button: discord.ui.Button):
-        children = self.children
-        for i in range(0, 12):
-            children[i].label = emoji_name[1][i]
-        for i in range(12, 16):
-            children[i].disabled = False
-        button.disabled = True
-        await interaction.response.edit_message(view=self)
-    @discord.ui.button(label=3,style=discord.ButtonStyle.blurple,row=4)
-    async def menu3(self, interaction: discord.Interaction, button: discord.ui.Button):
-        children = self.children
-        for i in range(0, 12):
-            children[i].label = emoji_name[2][i]
-        for i in range(12, 16):
-            children[i].disabled = False
-        button.disabled = True
-        await interaction.response.edit_message(view=self)
-    @discord.ui.button(label=4,style=discord.ButtonStyle.blurple,row=4)
-    async def menu4(self, interaction: discord.Interaction, button: discord.ui.Button):
-        children = self.children
-        for i in range(0, 12):
-            children[i].label = emoji_name[3][i]
-        for i in range(12, 16):
-            children[i].disabled = False
-        button.disabled = True
+
+        self.remove_item(self.children[3])
+        self.add_item(Dropdown3())
         await interaction.response.edit_message(view=self)
 
 bot = Bot()
@@ -230,13 +210,12 @@ async def logging(detail):
 #string to spell-checked string with discord markdown
 def spell_check(str):
     str = str.replace('\n', "<br>")
-    print(str)
     result = spell_checker.check(str)
     if result.errors == 0:
-        return False
+        return '감지된 오타가 없습니다.'
         
     rt_str = []
-    for sentence in str.split(): #sentence = 비오듯쏟아지던습하고
+    for sentence in str.split(): #sentence
         check = spell_checker.check(sentence).words
         words = []
         for word, value in check.items(): #word = 비오듯, value = 1
@@ -261,9 +240,9 @@ def spell_check(str):
         else:
             rt_str.append(f"{words}")
     
-    print(rt_str)
     rt_str = " ".join(rt_str)
     rt_str = html.unescape(rt_str).replace("<br>", "\n")
-    return re.sub(r'<.*>', "", rt_str)
+    rt_str = re.sub(r'<.*>', "", rt_str)
+    return rt_str
 
 bot.run(token)
