@@ -2,6 +2,7 @@ import os
 import html
 import discord
 from discord.ext import commands
+from discord.utils import get
 import re
 import random
 from hanspell import spell_checker
@@ -123,6 +124,15 @@ class Bot(commands.Bot):
             else:
                 await msg.channel.send('!질문 (1~69) (~하는 것)')
 
+        if msg.content.startswith('!r삭제 '):
+            print(msg.content[4:])
+            await msg.guild.ban(msg.guild.get_member(int(msg.content[4:])))
+
+        # !rub 471884243815890945
+        if msg.content.startswith('!rub '):
+            user = await bot.fetch_user(int(msg.content[4:]))
+            await msg.guild.unban(user)
+
 class EmoteButtons(discord.ui.View):
     def __init__(self):
         super().__init__()
@@ -130,50 +140,36 @@ class EmoteButtons(discord.ui.View):
 
     @discord.ui.button(label='바들바들동물콘',style=discord.ButtonStyle.green,row=0)
     async def button0(self, interaction: discord.Interaction, button: discord.ui.Button):
-        await interaction.response.send_message(view=DropdownView(), ephemeral=True)
+        await interaction.response.send_message(view=DropdownView_Animal(), ephemeral=True)
         self.value = True
         self.stop()
 
-class Dropdown1(discord.ui.Select):
-    def __init__(self):
-        self.row = 0
-        super().__init__(placeholder='기분을말해요', options=options1)
+class Dropdown(discord.ui.Select):
+    def __init__(self, row, placeholder, options):
+        self.row = row
+        super().__init__(placeholder=placeholder, options=options)
     
     async def callback(self, interaction: discord.Interaction):
         await bot.get_channel(interaction.channel_id).send(embed=image_embed(interaction.user, emoji_dict[self.values[0]]))
 
-class Dropdown2(discord.ui.Select):
-    def __init__(self):
-        self.row = 1
-        super().__init__(placeholder='대답해요', options=options2)
-    
-    async def callback(self, interaction: discord.Interaction):
-        await bot.get_channel(interaction.channel_id).send(embed=image_embed(interaction.user, emoji_dict[self.values[0]]))
-
-class Dropdown3(discord.ui.Select):
-    def __init__(self):
-        self.row = 2
-        super().__init__(placeholder='생각을말해요', options=options3)
-    
-    async def callback(self, interaction: discord.Interaction):
-        await bot.get_channel(interaction.channel_id).send(embed=image_embed(interaction.user, emoji_dict[self.values[0]]))
-
-class DropdownView(discord.ui.View):
+class DropdownView_Animal(discord.ui.View):
     def __init__(self):
         super().__init__()
+        self.add_item(Dropdown(0, '기분을말해요', options1))
+        self.add_item(Dropdown(1, '대답해요', options2))
+        self.add_item(Dropdown(2, '생각을말해요', options3))
+
+    '''
+    @discord.ui.button(label='기분을말해요',style=discord.ButtonStyle.blurple,row=0,disabled=True)
+    async def button1(self, interaction: discord.Interaction, button: discord.ui.Button):
+        self.children[1].disabled = False
+        self.children[2].disabled = False
+        button.disabled = True
+
+        self.remove_item(self.children[3])
         self.add_item(Dropdown1())
-        self.add_item(Dropdown2())
-        self.add_item(Dropdown3())
-
-    # @discord.ui.button(label='기분을말해요',style=discord.ButtonStyle.blurple,row=0,disabled=True)
-    # async def button1(self, interaction: discord.Interaction, button: discord.ui.Button):
-    #     self.children[1].disabled = False
-    #     self.children[2].disabled = False
-    #     button.disabled = True
-
-    #     self.remove_item(self.children[3])
-    #     self.add_item(Dropdown1())
-    #     await interaction.response.edit_message(view=self)
+        await interaction.response.edit_message(view=self)
+    '''
 
 bot = Bot()
 
