@@ -1,7 +1,8 @@
 import os
 import html
+from types import NoneType
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 from discord.utils import get
 import re
 import random
@@ -36,11 +37,36 @@ class Bot(commands.Bot):
             options2.append(discord.SelectOption(label=name,value=name))
         for name in emoji_names_say:
             options3.append(discord.SelectOption(label=name,value=name))
-        # self.music = []
-        # async for message in self.get_channel(962604153891323934).history():
-        #     if message.content.startswith('> '): #and message.author.id == self.application_id
-        #         self.music.append(message.content)
-        # print("MusicArr Added :\n" + "\n".join(self.music))
+
+        self.guild = self.get_guild(700309048611831858)
+        self.message = await self.get_channel(978271343961329694).fetch_message(980111862995771404)
+        
+        self.data = {}
+        self.scoring.start()
+    
+    @tasks.loop(seconds=60)
+    async def scoring(self):
+        await self.refresh_db()
+        for voice in self.guild.voice_channels:
+            if voice.id != 700309931894767646:
+                for member in voice.members:
+                    if member.id in list(self.data.keys()):
+                        self.data[member.id] += 1
+                    else:
+                        self.data[member.id] = 1
+        msg_cont = []
+        for key, value in sorted(self.data.items()):
+            msg_cont.append(f"{key}-{value}")
+        await self.message.edit("\n".join(msg_cont))
+
+
+    async def refresh_db(self):
+        print(self.message.content)
+        for db_message in self.message.content.split('\n'):
+            # 700272417326497802-10
+            data = list(map(int, db_message.split('-')))
+            self.data[data[0]] = data[1]
+        print(self.data)
 
     async def on_message(self, msg):
         if msg.author.bot or msg.author.id == self.user.id:
@@ -76,6 +102,24 @@ class Bot(commands.Bot):
             for emoji in emoji_dict.keys():
                 await msg.channel.send(embed=image_embed(msg.author, emoji_dict[emoji]))
             return
+        
+        #Emoji Testing
+        if msg.content == '!랭크':
+            embed = discord.Embed(title="⏱1포인트당 [1]분으로 환산", color=0x00ffb3)
+            field_nick = []
+            field_point = []
+            for key, value in sorted(self.data.items(), key=lambda x: x[1], reverse=True):
+                if field_nick == []:
+                    embed.set_author(name="포인트 랭크", icon_url=self.guild.get_member(key).avatar.url)
+                field_nick.append(self.guild.get_member(key).display_name)
+                if value%60 > 9:
+                    field_point.append(f"{int(value/60)}:{value%60}")
+                else:
+                    field_point.append(f"{int(value/60)}:0{value%60}")
+            embed.add_field(name="닉네임", value="\n".join(field_nick), inline=True)
+            embed.add_field(name="시간", value="\n".join(field_point), inline=True)
+            embed.set_footer(text="사용법: !랭크")
+            await msg.channel.send(embed=embed)
 
         #Team
         if msg.content == '!내전':
@@ -124,7 +168,8 @@ class Bot(commands.Bot):
             else:
                 await msg.channel.send('!질문 (1~69) (~하는 것)')
 
-        if msg.content.startswith('!r삭제 '):
+        '''
+        if msg.content.startswith('!rde '):
             print(msg.content[4:])
             await msg.guild.ban(msg.guild.get_member(int(msg.content[4:])))
 
@@ -132,6 +177,7 @@ class Bot(commands.Bot):
         if msg.content.startswith('!rub '):
             user = await bot.fetch_user(int(msg.content[4:]))
             await msg.guild.unban(user)
+        '''
 
 class EmoteButtons(discord.ui.View):
     def __init__(self):
