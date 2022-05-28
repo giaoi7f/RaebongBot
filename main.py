@@ -105,6 +105,7 @@ class Bot(commands.Bot):
         
         #Emoji Testing
         if msg.content == '!랭크':
+            await msg.delete()
             embed = discord.Embed(title="⏱1포인트당 [1]분으로 환산", color=0x00ffb3)
             field_nick = []
             field_point = []
@@ -120,6 +121,7 @@ class Bot(commands.Bot):
             embed.add_field(name="시간", value="\n".join(field_point), inline=True)
             embed.set_footer(text="사용법: !랭크")
             await msg.channel.send(embed=embed)
+            return
 
         #Team
         if msg.content == '!내전':
