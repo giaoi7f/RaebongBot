@@ -1,3 +1,4 @@
+from multiprocessing.connection import wait
 import os
 import html
 from types import NoneType
@@ -5,6 +6,7 @@ import discord
 from discord.ext import commands, tasks
 from discord.utils import get
 import re
+import time
 import random
 from hanspell import spell_checker
 from dotenv import load_dotenv
@@ -41,31 +43,35 @@ class Bot(commands.Bot):
         self.guild = self.get_guild(700309048611831858)
         self.message = await self.get_channel(978271343961329694).fetch_message(980111862995771404)
         
-        self.data = {}
+        await self.get_db()
+        time.sleep(10)
         self.scoring.start()
     
     @tasks.loop(seconds=60)
     async def scoring(self):
-        await self.refresh_db()
         for voice in self.guild.voice_channels:
             if voice.id != 700309931894767646:
                 for member in voice.members:
                     if member.id in list(self.data.keys()):
                         self.data[member.id] += 1
+                        print(f"plus: {self.data[member.id]} [{member.id}][{member.display_name}]")
                     else:
                         self.data[member.id] = 1
+                        print(f"append: {self.data[member.id]}=1 [{member.id}][{member.display_name}]")
         msg_cont = []
         for key, value in sorted(self.data.items()):
-            msg_cont.append(f"{key}-{value}")
+            msg_cont.append(f"{key}-{value}-{self.guild.get_member(key).display_name}")
         await self.message.edit("\n".join(msg_cont))
+        print(f"msg edited : {msg_cont}")
 
-
-    async def refresh_db(self):
+    async def get_db(self):
         print(self.message.content)
+        self.data = {}
+        
         for db_message in self.message.content.split('\n'):
             # 700272417326497802-10
-            data = list(map(int, db_message.split('-')))
-            self.data[data[0]] = data[1]
+            data = db_message.split('-')
+            self.data[int(data[0])] = int(data[1])
         print(self.data)
 
     async def on_message(self, msg):
