@@ -110,22 +110,18 @@ class Bot(commands.Bot):
             return
         
         #Emoji Testing
-        if msg.content == '!랭크':
+        if msg.content == '!랭킹':
             await msg.delete()
             embed = discord.Embed(title="⏱1포인트당 [1]분으로 환산", color=0x00ffb3)
-            field_nick = []
-            field_point = []
+            embed.set_author(name="포인트 랭킹", icon_url=msg.author.avatar.url)
+            field_value = []
             for key, value in sorted(self.data.items(), key=lambda x: x[1], reverse=True):
-                if field_nick == []:
-                    embed.set_author(name="포인트 랭크", icon_url=self.guild.get_member(key).avatar.url)
-                field_nick.append(self.guild.get_member(key).display_name)
                 if value%60 > 9:
-                    field_point.append(f"{int(value/60)}:{value%60}")
+                    field_value.append(f"`{value}`<@{key}> - **[{int(value/60)}시간 {value%60}분]**")
                 else:
-                    field_point.append(f"{int(value/60)}:0{value%60}")
-            embed.add_field(name="닉네임", value="\n".join(field_nick), inline=True)
-            embed.add_field(name="시간", value="\n".join(field_point), inline=True)
-            embed.set_footer(text="사용법: !랭크")
+                    field_value.append(f"`{value}`<@{key}> - **[{int(value/60)}시간 0{value%60}분]**")
+            embed.add_field(name="<포인트><이름> - <시간>", value="\n".join(field_value))
+            embed.set_footer(text="✓사용법: !랭킹")
             await msg.channel.send(embed=embed)
             return
 
