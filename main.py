@@ -31,6 +31,10 @@ class Bot(commands.Bot):
         await logging(f'{self.user}로 로그인함 (ID: {self.user.id})')
         await self.change_presence(activity=discord.Game(name="광질"))
         
+        self.ban = []
+        async for message in self.get_channel(982274318522277948).history(limit=200):
+            self.ban.append(message.content)
+
         global options1, options2, options3
         options1, options2, options3 = [], [], []
         for name in emoji_names_mood:
@@ -160,6 +164,7 @@ class Bot(commands.Bot):
                 await msg.reply(checked_spell)
 
         #Question
+        '''
         if msg.content.startswith('!질문 '):
             await msg.delete()
             if re.compile('\d ').match(msg.content[4:6]):
@@ -171,17 +176,24 @@ class Bot(commands.Bot):
                     await msg.channel.send(f"***> {msg.author.name}***{question(msg.content[7:], msg.content[4:6])}")
             else:
                 await msg.channel.send('!질문 (1~69) (~하는 것)')
-
         '''
-        if msg.content.startswith('!rde '):
-            print(msg.content[4:])
-            await msg.guild.ban(msg.guild.get_member(int(msg.content[4:])))
+        
+        #Msg Refeating
+        counter = False
+        async for message in msg.channel.history(limit=5):
+            if message.author == msg.author:
+                if counter:
+                    if message.content == msg.content:
+                        await msg.delete()
+                    return
+                else:
+                    counter = True
 
-        # !rub 471884243815890945
-        if msg.content.startswith('!rub '):
-            user = await bot.fetch_user(int(msg.content[4:]))
-            await msg.guild.unban(user)
-        '''
+        #Msg Refeating
+        for ban in self.ban:
+            if ban in msg.content:
+                await msg.delete()
+        
 
 class EmoteButtons(discord.ui.View):
     def __init__(self):
