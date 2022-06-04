@@ -31,9 +31,7 @@ class Bot(commands.Bot):
         await logging(f'{self.user}로 로그인함 (ID: {self.user.id})')
         await self.change_presence(activity=discord.Game(name="광질"))
         
-        self.ban = []
-        async for message in self.get_channel(982274318522277948).history(limit=200):
-            self.ban.append(message.content)
+        await self.ban_word_refresh()
 
         global options1, options2, options3
         options1, options2, options3 = [], [], []
@@ -56,31 +54,46 @@ class Bot(commands.Bot):
         for voice in self.guild.voice_channels:
             if voice.id != 700309931894767646:
                 for member in voice.members:
-                    if member.id in list(self.data.keys()):
-                        self.data[member.id] += 1
-                        print(f"plus: {self.data[member.id]} [{member.id}][{member.display_name}]")
+                    if member.id in list(self.data_point.keys()):
+                        self.data_point[member.id] += 1
+                        self.data_time[member.id] += 1
+                        print(f"plus: {self.data_point[member.id]} [{member.id}][{member.display_name}]")
                     else:
-                        self.data[member.id] = 1
-                        print(f"append: {self.data[member.id]}=1 [{member.id}][{member.display_name}]")
+                        self.data_point[member.id] = 1
+                        self.data_time[member.id] = 1
+                        print(f"append: {self.data_point[member.id]}=1 [{member.id}][{member.display_name}]")
         msg_cont = []
-        for key, value in sorted(self.data.items()):
-            msg_cont.append(f"{key}-{value}-{self.guild.get_member(key).display_name}")
+        for key, value in sorted(self.data_point.items(), key=lambda x: x[1], reverse=True):
+            msg_cont.append(f"{key}-{value}-{self.data_time[key]}-{self.guild.get_member(key).display_name}")
         await self.message.edit("\n".join(msg_cont))
         print(f"msg edited : {msg_cont}")
 
     async def get_db(self):
         print(self.message.content)
-        self.data = {}
-        
+        self.data_point = {}
+        self.data_time = {}
         for db_message in self.message.content.split('\n'):
-            # 700272417326497802-10
+            # 700272417326497802-10(point)-20(time)
             data = db_message.split('-')
-            self.data[int(data[0])] = int(data[1])
-        print(self.data)
+            self.data_point[int(data[0])] = int(data[1])
+            self.data_time[int(data[0])] = int(data[2])
+
+    async def ban_word_refresh(self):
+        self.ban = []
+        async for message in self.get_channel(982274318522277948).history(limit=200):
+            self.ban.append(message.content)
 
     async def on_message(self, msg):
         if msg.author.bot or msg.author.id == self.user.id:
             return
+
+        print(f"msg.content: [{msg.content}]")
+
+        #Ban words
+        for ban in self.ban:
+            if ban in msg.content:
+                await msg.delete()
+                return
 
         #'E' command
         if msg.content == 'e' or msg.content == 'E' or msg.content == 'ㄷ':
@@ -113,17 +126,24 @@ class Bot(commands.Bot):
                 await msg.channel.send(embed=image_embed(msg.author, emoji_dict[emoji]))
             return
         
+        #Banword refresh
+        if msg.content == '!금칙어':
+            await msg.delete()
+            await self.ban_word_refresh()
+            ban = ", ".join(self.ban)
+            await msg.channel.send(f"```diff\n- 금칙어\n{ban}```")
+
         #Emoji Testing
         if msg.content == '!랭킹':
             await msg.delete()
-            embed = discord.Embed(title="⏱1포인트당 [1]분으로 환산", color=0x00ffb3)
+            embed = discord.Embed(title="⏱1분당 1포인트 획득 가능", color=0x00ffb3)
             embed.set_author(name="포인트 랭킹", icon_url=msg.author.avatar.url)
             field_value = []
-            for key, value in sorted(self.data.items(), key=lambda x: x[1], reverse=True):
+            for key, value in sorted(self.data_point.items(), key=lambda x: x[1], reverse=True):
                 if value%60 > 9:
-                    field_value.append(f"`{value}`<@{key}> - **[{int(value/60)}시간 {value%60}분]**")
+                    field_value.append(f"`{self.data_point[key]}`<@{key}> - **[{int(value/60)}시간 {value%60}분]**")
                 else:
-                    field_value.append(f"`{value}`<@{key}> - **[{int(value/60)}시간 0{value%60}분]**")
+                    field_value.append(f"`{self.data_point[key]}`<@{key}> - **[{int(value/60)}시간 0{value%60}분]**")
             embed.add_field(name="<포인트><이름> - <시간>", value="\n".join(field_value))
             embed.set_footer(text="✓사용법: !랭킹")
             await msg.channel.send(embed=embed)
@@ -177,22 +197,19 @@ class Bot(commands.Bot):
             else:
                 await msg.channel.send('!질문 (1~69) (~하는 것)')
         '''
-        
-        #Msg Refeating
-        counter = False
-        async for message in msg.channel.history(limit=5):
-            if message.author == msg.author:
-                if counter:
-                    if message.content == msg.content:
-                        await msg.delete()
-                    return
-                else:
-                    counter = True
 
-        #Msg Refeating
-        for ban in self.ban:
-            if ban in msg.content:
-                await msg.delete()
+        # ====Msg Refeating====
+        # this branch must be last branch in `on_message` method
+        if msg.content:
+            counter = False
+            async for message in msg.channel.history(limit=5):
+                if message.author == msg.author:
+                    if counter:
+                        if message.content == msg.content:
+                            await msg.delete()
+                        return
+                    else:
+                        counter = True
         
 
 class EmoteButtons(discord.ui.View):
