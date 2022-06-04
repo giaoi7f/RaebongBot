@@ -140,10 +140,10 @@ class Bot(commands.Bot):
             embed.set_author(name="포인트 랭킹", icon_url=msg.author.avatar.url)
             field_value = []
             for key, value in sorted(self.data_point.items(), key=lambda x: x[1], reverse=True):
-                if value%60 > 9:
-                    field_value.append(f"`{self.data_point[key]}`<@{key}> - **[{int(value/60)}시간 {value%60}분]**")
+                if self.data_time[key]%60 > 9:
+                    field_value.append(f"`{value}`<@{key}> - **[{int(self.data_time[key]/60)}시간 {self.data_time[key]%60}분]**")
                 else:
-                    field_value.append(f"`{self.data_point[key]}`<@{key}> - **[{int(value/60)}시간 0{value%60}분]**")
+                    field_value.append(f"`{value}`<@{key}> - **[{int(self.data_time[key]/60)}시간 0{self.data_time[key]%60}분]**")
             embed.add_field(name="<포인트><이름> - <시간>", value="\n".join(field_value))
             embed.set_footer(text="✓사용법: !랭킹")
             await msg.channel.send(embed=embed)
