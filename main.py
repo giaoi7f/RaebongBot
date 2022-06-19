@@ -44,7 +44,7 @@ class Bot(commands.Bot):
 
         self.guild = self.get_guild(700309048611831858)
         self.message = await self.get_channel(978271343961329694).fetch_message(980111862995771404)
-        
+
         await self.get_db()
         time.sleep(10)
         self.scoring.start()
@@ -139,12 +139,12 @@ class Bot(commands.Bot):
             embed = discord.Embed(title="⏱1분당 1포인트 획득 가능", color=0x00ffb3)
             embed.set_author(name="포인트 랭킹", icon_url=msg.author.avatar.url)
             field_value = []
-            for key, value in sorted(self.data_point.items(), key=lambda x: x[1], reverse=True):
+            for key, value in dict(list(sorted(self.data_point.items(), key=lambda x: x[1], reverse=True))[:20]).items():
                 if self.data_time[key]%60 > 9:
                     field_value.append(f"`{value}`<@{key}> - **[{int(self.data_time[key]/60)}시간 {self.data_time[key]%60}분]**")
                 else:
                     field_value.append(f"`{value}`<@{key}> - **[{int(self.data_time[key]/60)}시간 0{self.data_time[key]%60}분]**")
-            embed.add_field(name="<포인트><이름> - <시간>", value="\n".join(field_value))
+            embed.add_field(name="TOP 20", value="\n".join(field_value))
             embed.set_footer(text="✓사용법: !랭킹")
             await msg.channel.send(embed=embed)
             return
