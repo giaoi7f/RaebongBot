@@ -1,10 +1,7 @@
-from multiprocessing.connection import wait
 import os
 import html
-from types import NoneType
 import discord
 from discord.ext import commands, tasks
-from discord.utils import get
 import re
 import time
 import random
@@ -13,7 +10,6 @@ from dotenv import load_dotenv
 from discord import utils
 from emojiLink import emoji_dict, emoji_names_mood, emoji_names_answer, emoji_names_say
 from name import name_list
-from question import question
 
 emoji_regex = re.compile(r'<:\w*:\d*>')
 
