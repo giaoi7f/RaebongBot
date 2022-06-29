@@ -179,21 +179,6 @@ class Bot(commands.Bot):
             if checked_spell:
                 await msg.reply(checked_spell)
 
-        #Question
-        '''
-        if msg.content.startswith('!질문 '):
-            await msg.delete()
-            if re.compile('\d ').match(msg.content[4:6]):
-                await msg.channel.send(f"***> {msg.author.name}***{question(msg.content[6:], msg.content[4])}")
-            elif re.compile('\d\d ').match(msg.content[4:7]):
-                if int(msg.content[4:6]) > 69:
-                    await msg.channel.send('!질문 (1~69) (~하는 것)')
-                else:
-                    await msg.channel.send(f"***> {msg.author.name}***{question(msg.content[7:], msg.content[4:6])}")
-            else:
-                await msg.channel.send('!질문 (1~69) (~하는 것)')
-        '''
-
         # ====Msg Refeating====
         # this branch must be last branch in `on_message` method
         if msg.content:
