@@ -157,7 +157,7 @@ class Bot(commands.Bot):
 
         #View Self Rank
         # c.execute(f"SELECT * FROM userdata WHERE id={}").fetchall()
-        if msg.content == '!내 정보':
+        if msg.content == '!플탐':
             await msg.delete()
             await msg.channel.send(make_graph(self.c.execute(f"SELECT * FROM userdata WHERE id={msg.author.id}").fetchone()[2], msg.author.id))
             return
@@ -200,7 +200,7 @@ class Bot(commands.Bot):
             return
 
         #Remove message
-        if msg.content == '!제거':
+        if msg.content == '!제거' or msg.content == '!삭제':
             await msg.delete()
             if msg.reference is None:
                 await msg.channel.send(':information_source: **`답장`**기능과 함께 사용해주세요')
