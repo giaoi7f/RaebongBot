@@ -1,14 +1,19 @@
-import os
+import datetime
 import html
-import discord
-from discord.ext import commands, tasks
-import re
-import time
+import os
 import random
-from hanspell import spell_checker
-from dotenv import load_dotenv
+import re
+import sqlite3
+import time
+
+import discord
 from discord import utils
-from emojiLink import emoji_dict, emoji_names_mood, emoji_names_answer, emoji_names_say
+from discord.ext import commands, tasks
+from dotenv import load_dotenv
+
+from emojiLink import (emoji_dict, emoji_names_answer, emoji_names_mood,
+                       emoji_names_say)
+from hanspell import spell_checker
 from name import name_list
 
 emoji_regex = re.compile(r'<:\w*:\d*>')
@@ -37,42 +42,46 @@ class Bot(commands.Bot):
             options2.append(discord.SelectOption(label=name,value=name))
         for name in emoji_names_say:
             options3.append(discord.SelectOption(label=name,value=name))
-
-        self.guild = self.get_guild(700309048611831858)
-        self.message = await self.get_channel(978271343961329694).fetch_message(980111862995771404)
-
-        await self.get_db()
-        time.sleep(10)
+        
+        self.con = sqlite3.connect("userdata.db")
+        self.c = self.con.cursor()
         self.scoring.start()
+        self.daily_task.start()
     
+    #History Daily apply
+    @tasks.loop(hours=24)
+    async def daily_task(self):
+        print('DAILY TASK STARTED!')
+        for data in self.c.execute(f"SELECT * FROM userdata").fetchall():
+            self.c.execute(f"UPDATE userdata SET history='{'-'.join(data[2].split('-')[1:] + ['0'])}' WHERE id={data[0]}")
+        self.con.commit()
+        
+    #History Daily apply Timer
+    @daily_task.before_loop
+    async def wait_until_midnight(self):
+        now = datetime.datetime.now().astimezone()
+        next_run = now.replace(hour=0, minute=0, second=0)
+        if next_run < now:
+            next_run += datetime.timedelta(days=1)
+        print(next_run)
+        await discord.utils.sleep_until(next_run)
+
+    #Add scores loop all active user
     @tasks.loop(seconds=60)
     async def scoring(self):
-        for voice in self.guild.voice_channels:
+        for voice in self.get_guild(700309048611831858).voice_channels:
             if voice.id != 700309931894767646:
                 for member in voice.members:
-                    if member.id in list(self.data_point.keys()):
-                        self.data_point[member.id] += 1
-                        self.data_time[member.id] += 1
-                        print(f"plus: {self.data_point[member.id]} [{member.id}][{member.display_name}]")
+                    self.c.execute(f"SELECT * FROM userdata WHERE id={member.id}")
+                    if self.c.fetchone():
+                        history = self.c.execute(f"SELECT * FROM userdata WHERE id={member.id}").fetchone()[2].split('-')
+                        history[-1] = str(int(history[-1]) + 1)
+                        self.c.execute(f"UPDATE userdata SET history='{'-'.join(history)}' WHERE id={member.id}")
+                        self.c.execute(f"UPDATE userdata SET score=score+1 WHERE id={member.id}")
                     else:
-                        self.data_point[member.id] = 1
-                        self.data_time[member.id] = 1
-                        print(f"append: {self.data_point[member.id]}=1 [{member.id}][{member.display_name}]")
-        msg_cont = []
-        for key, value in sorted(self.data_point.items(), key=lambda x: x[1], reverse=True):
-            msg_cont.append(f"{key}-{value}-{self.data_time[key]}-{self.guild.get_member(key).display_name}")
-        await self.message.edit("\n".join(msg_cont))
-        print(f"msg edited : {msg_cont}")
-
-    async def get_db(self):
-        print(self.message.content)
-        self.data_point = {}
-        self.data_time = {}
-        for db_message in self.message.content.split('\n'):
-            # 700272417326497802-10(point)-20(time)
-            data = db_message.split('-')
-            self.data_point[int(data[0])] = int(data[1])
-            self.data_time[int(data[0])] = int(data[2])
+                        self.c.execute(f"UPDATE userdata SET history='0-0-0-0-0-0-0' WHERE id={member.id}")
+                        self.c.execute(f"UPDATE userdata SET score=1 WHERE id={member.id}")
+        self.con.commit()
 
     async def ban_word_refresh(self):
         self.ban = []
@@ -83,7 +92,7 @@ class Bot(commands.Bot):
         if msg.author.bot or msg.author.id == self.user.id:
             return
 
-        print(f"msg.content: [{msg.content}]")
+        print(f"msg.content: '{msg.content}'")
 
         #Ban words
         for ban in self.ban:
@@ -128,21 +137,29 @@ class Bot(commands.Bot):
             await self.ban_word_refresh()
             ban = ", ".join(self.ban)
             await msg.channel.send(f"```diff\n- 금칙어\n{ban}```")
+            return
 
-        #Emoji Testing
+        #All Players Ranking
         if msg.content == '!랭킹':
             await msg.delete()
             embed = discord.Embed(title="⏱1분당 1포인트 획득 가능", color=0x00ffb3)
             embed.set_author(name="포인트 랭킹", icon_url=msg.author.avatar.url)
             field_value = []
-            for key, value in dict(list(sorted(self.data_point.items(), key=lambda x: x[1], reverse=True))[:20]).items():
-                if self.data_time[key]%60 > 9:
-                    field_value.append(f"`{value}`<@{key}> - **[{int(self.data_time[key]/60)}시간 {self.data_time[key]%60}분]**")
+            for user_id, user_score, _ in self.c.execute(f"SELECT * FROM userdata ORDER BY score DESC LIMIT 20").fetchall():
+                if user_score%60 > 9:
+                    field_value.append(f"`{user_score}`<@{user_id}> - **[{int(user_score/60)}시간 {user_score%60}분]**")
                 else:
-                    field_value.append(f"`{value}`<@{key}> - **[{int(self.data_time[key]/60)}시간 0{self.data_time[key]%60}분]**")
+                    field_value.append(f"`{user_score}`<@{user_id}> - **[{int(user_score/60)}시간 0{user_score%60}분]**")
             embed.add_field(name="TOP 20", value="\n".join(field_value))
             embed.set_footer(text="✓사용법: !랭킹")
             await msg.channel.send(embed=embed)
+            return
+
+        #View Self Rank
+        # c.execute(f"SELECT * FROM userdata WHERE id={}").fetchall()
+        if msg.content == '!내 정보':
+            await msg.delete()
+            await msg.channel.send(make_graph(self.c.execute(f"SELECT * FROM userdata WHERE id={msg.author.id}").fetchone()[2], msg.author.id))
             return
 
         #Team
@@ -166,6 +183,7 @@ class Bot(commands.Bot):
                 self.fight_embed = await msg.reply(embed=embed)
             else:
                 await msg.reply('보이스채널에 있어야합니다')
+            return
 
         #Spell check command
         if msg.content.startswith("!검사") and msg.reference is not None:
@@ -173,24 +191,33 @@ class Bot(commands.Bot):
             checked_spell = spell_check(utils.remove_markdown(target_msg.content))
             if checked_spell:
                 await target_msg.reply(checked_spell)
+            return
 
         if msg.content.startswith("!검사 "):
             checked_spell = spell_check(utils.remove_markdown(msg.content[4:]))
             if checked_spell:
                 await msg.reply(checked_spell)
+            return
 
-        # ====Msg Refeating====
-        # this branch must be last branch in `on_message` method
-        if msg.content:
-            counter = False
-            async for message in msg.channel.history(limit=5):
-                if message.author == msg.author:
-                    if counter:
-                        if message.content == msg.content:
-                            await msg.delete()
-                        return
-                    else:
-                        counter = True
+        #Remove message
+        if msg.content == '!제거':
+            await msg.delete()
+            if msg.reference is None:
+                await msg.channel.send(':information_source: **`답장`**기능과 함께 사용해주세요')
+                return
+            if not msg.guild.get_member(msg.author.id).guild_permissions.manage_messages:
+                await msg.channel.send(':no_entry: **메세지 관리** 권한이 없습니다')
+                return
+            reference = await msg.channel.fetch_message(msg.reference.message_id)
+            history = msg.channel.history(before=msg, after=reference)
+            message_list = [message async for message in history] + [reference]
+            message_list_num = len(message_list)
+            if message_list_num > 99:
+                await msg.channel.send(':no_entry: 최대 100개의 메세지를 삭제할 수 있습니다')
+                return
+            await msg.channel.send(f'<@{msg.author.id}>: **{msg.channel.name}**에서 메세지 **`{message_list_num}`**개를 삭제했습니다.')
+            await msg.channel.delete_messages(message_list)
+            return
         
 
 class EmoteButtons(discord.ui.View):
@@ -282,5 +309,29 @@ def spell_check(str):
     rt_str = html.unescape(rt_str).replace("<br>", "\n")
     rt_str = re.sub(r'<.*>', "", rt_str)
     return rt_str
+
+def make_graph(user_history, user_id):
+    history = [0, 0, 0, 0, 0, 0, 0]
+    for index, num in enumerate(reversed(user_history.split('-'))):
+        history[-index-1] = int(num)
+    mult = sorted(history)[6]/6
+    n = []
+    for i in range(1, 7):
+        m = []
+        for j in history:
+            if j >= i*mult:
+                m.append(' ▉')
+            else:
+                m.append(' ㅤ')
+        row = int(i*mult/60)
+        if row > 9:
+            n.append(f"{str(row)}시간{''.join(m)}")
+        else:
+            n.append(f"{str(row)}시간 {''.join(m)}")
+    n.reverse()
+    week = ['월', '화', '수', '목', '금', '토', '일']
+    weekday = datetime.datetime.today().weekday() + 1
+    week = week[weekday:]+week[:weekday]
+    return f":globe_with_meridians: **최근 액티브타임 [<@{str(user_id)}> <t:{int(time.time())}:D>]**```\n"+ '\n'.join(n) + f"\nㅤ     {' '.join(week)}```"
 
 bot.run(token)

@@ -1,7 +1,8 @@
-from os import walk
+import sqlite3
 
-f = []
-for (dirpath, dirnames, filenames) in walk('./tracks/'):
-    f.extend(filenames)
+con = sqlite3.connect("userdata.db")
+c = con.cursor()
 
-print(len(f))
+for data in c.execute(f"SELECT * FROM userdata").fetchall():
+    c.execute(f"UPDATE userdata SET history='{'-'.join(data[2].split('-')[1:] + ['0'])}' WHERE id={data[0]}")
+con.commit()

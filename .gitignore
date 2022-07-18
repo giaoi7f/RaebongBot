@@ -3,3 +3,5 @@ test.py
 /tracks
 emojiLink.py
 name.py
+.db
+data.py
