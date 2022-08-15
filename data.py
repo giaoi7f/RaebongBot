@@ -1,11 +1,2 @@
-import sqlite3
-import datetime
-
-con = sqlite3.connect("userdata.db")
-c = con.cursor()
-
-
-week = ['월', '화', '수', '목', '금', '토', '일']
-weekday = datetime.datetime.today().weekday() + 1
-week = week[weekday:]+week[:weekday]
-print(week)
+msg = "32145"
+print('''await msg.channel.send(embed=image_embed(msg.author, f"https://cdn.discordapp.com/emojis/{msg.content.split(':')[2][:-1]}.png"))''')

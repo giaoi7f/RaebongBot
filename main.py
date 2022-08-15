@@ -79,7 +79,7 @@ class Bot(commands.Bot):
                         self.c.execute(f"UPDATE userdata SET history='{'-'.join(history)}' WHERE id={member.id}")
                         self.c.execute(f"UPDATE userdata SET score=score+1 WHERE id={member.id}")
                     else:
-                        self.c.execute(f"UPDATE userdata SET history='0-0-0-0-0-0-0' WHERE id={member.id}")
+                        self.c.execute(f"UPDATE userdata SET history='0-0-0-0-0-0-0-0-0-0-0-0-0-0' WHERE id={member.id}")
                         self.c.execute(f"UPDATE userdata SET score=1 WHERE id={member.id}")
         self.con.commit()
 
@@ -212,11 +212,12 @@ class Bot(commands.Bot):
             history = msg.channel.history(before=msg, after=reference)
             message_list = [message async for message in history] + [reference]
             message_list_num = len(message_list)
-            if message_list_num > 99:
-                await msg.channel.send(':no_entry: 최대 100개의 메세지를 삭제할 수 있습니다')
+            if message_list_num > 499:
+                await msg.channel.send(':no_entry: 최대 500개의 메세지를 삭제할 수 있습니다')
                 return
+            await reference.delete()
+            await msg.channel.purge(limit=500, before=msg, after=reference)
             await msg.channel.send(f'<@{msg.author.id}>: **{msg.channel.name}**에서 메세지 **`{message_list_num}`**개를 삭제했습니다.')
-            await msg.channel.delete_messages(message_list)
             return
         
 
@@ -311,12 +312,12 @@ def spell_check(str):
     return rt_str
 
 def make_graph(user_history, user_id):
-    history = [0, 0, 0, 0, 0, 0, 0]
+    history = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     for index, num in enumerate(reversed(user_history.split('-'))):
         history[-index-1] = int(num)
-    mult = sorted(history)[6]/6
+    mult = sorted(history)[13]/10
     n = []
-    for i in range(1, 7):
+    for i in range(1, 11):
         m = []
         for j in history:
             if j >= i*mult:
@@ -329,7 +330,7 @@ def make_graph(user_history, user_id):
         else:
             n.append(f"{str(row)}시간 {''.join(m)}")
     n.reverse()
-    week = ['월', '화', '수', '목', '금', '토', '일']
+    week = ['월', '화', '수', '목', '금', '토', '일', '월', '화', '수', '목', '금', '토', '일']
     weekday = datetime.datetime.today().weekday() + 1
     week = week[weekday:]+week[:weekday]
     return f":globe_with_meridians: **최근 액티브타임 [<@{str(user_id)}> <t:{int(time.time())}:D>]**```\n"+ '\n'.join(n) + f"\nㅤ     {' '.join(week)}```"
