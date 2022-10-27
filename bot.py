@@ -210,7 +210,6 @@ def full_album(vc, name):
         vc.play(FFmpegOpusAudio(bot.queue[0]), after=lambda e: play_next(vc))
 
 def play(vc, path):
-    # path = "./tracks/그나음그/56.opus"
     bot.queue.append(path)
     if not check_playing(vc):
         print(bot.queue)
@@ -269,111 +268,14 @@ async def 곡정보(interaction: discord.Interaction) -> None:
 
 @bot.tree.command()
 @app_commands.describe(track='트랙을 재생목록에 추가해요. 빈 칸으로 두면 전체 추가')
-async def 요루시카_여름풀(interaction: discord.Interaction, track: album['여름풀']="[ALL]") -> None:
+async def 요루시카_여름풀(interaction: discord.Interaction, track: album['NAME']="[ALL]") -> None:
     """[2017 1st Mini Album] 夏草が邪魔をする"""
     await join(interaction)
     if track == "[ALL]":
-        full_album(interaction.guild.voice_client, '여름풀')
-        await interaction.response.send_message(f":musical_note:  **여름풀**의 **`{len(all_album['여름풀'])}`**곡이 추가됨")
+        full_album(interaction.guild.voice_client, 'NAME')
+        await interaction.response.send_message(f":musical_note:  **NAME**의 **`{len(all_album['NAME'])}`**곡이 추가됨")
     else:
-        play(interaction.guild.voice_client, f"./tracks/여름풀/{track}.opus")
-        await interaction.response.send_message(f":musical_note:  **여름풀이 방해를 해** - **`{track}`**")
-
-@bot.tree.command()
-@app_commands.describe(track='트랙을 재생목록에 추가해요. 빈 칸으로 두면 전체 추가')
-async def 요루시카_마케이누(interaction: discord.Interaction, track: album['마케이누']="[ALL]") -> None:
-    """[2018 2nd Mini Album] 負け犬にアンコールはいらない"""
-    await join(interaction)
-    if track == "[ALL]":
-        full_album(interaction.guild.voice_client, '마케이누')
-        await interaction.response.send_message(f":musical_note:  **마케이누**의 **`{len(all_album['마케이누'])}`**곡이 추가됨")
-    else:
-        play(interaction.guild.voice_client, f"./tracks/마케이누/{track}.opus")
-        await interaction.response.send_message(f":musical_note:  **패배자에게 앵콜은 필요 없어** - **`{track}`**")
-
-@bot.tree.command()
-@app_commands.describe(track='트랙을 재생목록에 추가해요. 빈 칸으로 두면 전체 추가')
-async def 요루시카_그나음그(interaction: discord.Interaction, track: album['그나음그']="[ALL]") -> None:
-    """[2019 1st Full Album] だから僕は音楽を辞めた"""
-    await join(interaction)
-    if track == "[ALL]":
-        full_album(interaction.guild.voice_client, '그나음그')
-        await interaction.response.send_message(f":musical_note:  **그나음그**의 **`{len(all_album['그나음그'])}`**곡이 추가됨")
-    else:
-        play(interaction.guild.voice_client, f"./tracks/그나음그/{track}.opus")
-        await interaction.response.send_message(f":musical_note:  **그래서 나는 음악을 그만두었다** - **`{track}`**")
-
-@bot.tree.command()
-@app_commands.describe(track='트랙을 재생목록에 추가해요. 빈 칸으로 두면 전체 추가')
-async def 요루시카_엘마(interaction: discord.Interaction, track: album['엘마']="[ALL]") -> None:
-    """[2019 2nd Full Album] エルマ"""
-    await join(interaction)
-    if track == "[ALL]":
-        full_album(interaction.guild.voice_client, '엘마')
-        await interaction.response.send_message(f":musical_note:  **엘마**의 **`{len(all_album['엘마'])}`**곡이 추가됨")
-    else:
-        play(interaction.guild.voice_client, f"./tracks/엘마/{track}.opus")
-        await interaction.response.send_message(f":musical_note:  **엘마** - **`{track}`**")
-    
-@bot.tree.command()
-@app_commands.describe(track='트랙을 재생목록에 추가해요. 빈 칸으로 두면 전체 추가')
-async def 요루시카_도작(interaction: discord.Interaction, track: album['도작']="[ALL]") -> None:
-    """[2020 3rd Full Album] 盗作"""
-    await join(interaction)
-    if track == "[ALL]":
-        full_album(interaction.guild.voice_client, '도작')
-        await interaction.response.send_message(f":musical_note:  **도작**의 **`{len(all_album['도작'])}`**곡이 추가됨")
-    else:
-        play(interaction.guild.voice_client, f"./tracks/도작/{track}.opus")
-        await interaction.response.send_message(f":musical_note:  **도작** - **`{track}`**")
-
-@bot.tree.command()
-@app_commands.describe(track='트랙을 재생목록에 추가해요. 빈 칸으로 두면 전체 추가')
-async def 요루시카_전세(interaction: discord.Interaction, track: album['전세']="[ALL]") -> None:
-    """[2021 Live] 前世"""
-    await join(interaction)
-    if track == "[ALL]":
-        full_album(interaction.guild.voice_client, '전세')
-        await interaction.response.send_message(f":musical_note:  **전세**의 **`{len(all_album['전세'])}`**곡이 추가됨")
-    else:
-        play(interaction.guild.voice_client, f"./tracks/전세/{track}.opus")
-        await interaction.response.send_message(f":musical_note:  **전세** - **`{track}`**")
-
-@bot.tree.command()
-@app_commands.describe(track='트랙을 재생목록에 추가해요. 빈 칸으로 두면 전체 추가')
-async def 요루시카_창작(interaction: discord.Interaction, track: album['창작']="[ALL]") -> None:
-    """[2021 3rd Mini Album] 創作"""
-    await join(interaction)
-    if track == "[ALL]":
-        full_album(interaction.guild.voice_client, '창작')
-        await interaction.response.send_message(f":musical_note:  **창작**의 **`{len(all_album['창작'])}`**곡이 추가됨")
-    else:
-        play(interaction.guild.voice_client, f"./tracks/창작/{track}.opus")
-        await interaction.response.send_message(f":musical_note:  **창작** - **`{track}`**")
-
-@bot.tree.command()
-@app_commands.describe(track='트랙을 재생목록에 추가해요. 빈 칸으로 두면 전체 추가')
-async def 요루시카_싱글(interaction: discord.Interaction, track: album['싱글']="[ALL]") -> None:
-    """[2021~ Single]"""
-    await join(interaction)
-    if track == "[ALL]":
-        full_album(interaction.guild.voice_client, '싱글')
-        await interaction.response.send_message(f":musical_note:  **싱글**의 **`{len(all_album['싱글'])}`**곡이 추가됨")
-    else:
-        play(interaction.guild.voice_client, f"./tracks/싱글/{track}.opus")
-        await interaction.response.send_message(f":musical_note:  싱글 - **`{track}`**")
-
-@bot.tree.command()
-@app_commands.describe(track='트랙을 재생목록에 추가해요. 빈 칸으로 두면 전체 추가')
-async def 요루시카_월광(interaction: discord.Interaction, track: album['월광']="[ALL]") -> None:
-    """[2022 Live] 月光"""
-    await join(interaction)
-    if track == "[ALL]":
-        full_album(interaction.guild.voice_client, '월광')
-        await interaction.response.send_message(f":musical_note:  **월광**의 **`{len(all_album['월광'])}`**곡이 추가됨")
-    else:
-        play(interaction.guild.voice_client, f"./tracks/월광/{track}.opus")
-        await interaction.response.send_message(f":musical_note:  **월광 재연** - **`{track}`**")
-
+        play(interaction.guild.voice_client, f"./tracks/NAME/{track}.opus")
+        await interaction.response.send_message(f":musical_note:  **NAME** - **`{track}`**")
 
 bot.run(TOKEN)
